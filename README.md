@@ -2,7 +2,7 @@
 
 > A web application that detects fake news using DeBERTa-v3, RAG pipeline, and 7 verdict categories.
 
-**Status:** 🚧 In Progress — Phase 1 (Steps 1-2 of 19 complete)
+**Status:** 🚧 In Progress — Phase 1 (Steps 1-4 of 19 complete)
 
 ---
 
@@ -281,8 +281,8 @@ Analyzes a news article and returns a verdict.
 |---|---|---|
 | Step 1 | Project Setup & Environment | ✅ Complete |
 | Step 2 | Download Datasets & EDA | ✅ Complete |
-| Step 3 | Train Logistic Regression Baseline | 🚧 In Progress |
-| Step 4 | Build Domain Credibility Scorer | ⏳ Pending |
+| Step 3 | Train Logistic Regression Baseline | ✅ Complete |
+| Step 4 | Build Domain Credibility Scorer | ✅ Complete |
 | Step 5 | Build RSS Parser & Ingestion Script | ⏳ Pending |
 | Step 6 | Fine-tune DeBERTa-v3 | ⏳ Pending |
 | Step 7 | Expose /predict Endpoint | ⏳ Pending |
@@ -338,4 +338,4 @@ For educational and research purposes only.
 
 ---
 
-*Last updated: Step 2 complete — Dataset Analysis*
+*Last updated: Step 4 complete — Domain Credibility Scorer built and tested*
