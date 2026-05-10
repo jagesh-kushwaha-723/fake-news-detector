@@ -2,7 +2,7 @@
 
 > A web application that detects fake news using DeBERTa-v3, RAG pipeline, and 7 verdict categories.
 
-**Status:** 🚧 In Progress — Phase 1 (Steps 1-4 of 19 complete)
+**Status:** 🚧 In Progress — Phase 1 (Steps 1-5 of 19 complete)
 
 ---
 
@@ -11,6 +11,7 @@
 A user pastes a news article URL or text into a web app. The system analyzes it and returns one of 7 verdicts — REAL, FAKE, MISLEADING, SATIRE, UNVERIFIED, IMPLAUSIBLE, or STALE — along with a confidence score, reasoning, and links to verified sources that support the verdict.
 
 What makes this different from other fake news detectors:
+
 - **7 verdict categories** instead of binary real/fake — more honest about uncertainty
 - **Plausibility layer** that catches impossible claims before the ML model even runs
 - **RAG pipeline** that gives the LLM real verified sources to cite instead of hallucinating
@@ -37,7 +38,7 @@ FastAPI Backend (Railway)
       |
       v
 JSON Response → Frontend renders verdict card
-      
+
 Background (every 30 min):
 Ingestion Pipeline → RSS Feeds + Google Fact Check + Wikipedia → Qdrant
 ```
@@ -46,50 +47,53 @@ Ingestion Pipeline → RSS Feeds + Google Fact Check + Wikipedia → Qdrant
 
 ## The 7 Verdict Categories
 
-| Verdict | When Assigned | Example |
-|---|---|---|
-| REAL | Supported by multiple verified sources | Reuters article confirmed by 3 sources |
-| FAKE | Directly contradicted by evidence | Health claim debunked by WHO |
-| MISLEADING | True facts but deceptively framed | 10-year-old stat presented as current |
-| SATIRE | Source is a known parody site | Any article from theonion.com |
-| UNVERIFIED | Too new — no matching sources yet | Breaking news from last hour |
-| IMPLAUSIBLE | Defies physical or factual reality | Aliens landing, dead politicians winning elections |
-| STALE | Article is more than 2 years old | 2012 article recirculating as current news |
+| Verdict     | When Assigned                          | Example                                            |
+| ----------- | -------------------------------------- | -------------------------------------------------- |
+| REAL        | Supported by multiple verified sources | Reuters article confirmed by 3 sources             |
+| FAKE        | Directly contradicted by evidence      | Health claim debunked by WHO                       |
+| MISLEADING  | True facts but deceptively framed      | 10-year-old stat presented as current              |
+| SATIRE      | Source is a known parody site          | Any article from theonion.com                      |
+| UNVERIFIED  | Too new — no matching sources yet      | Breaking news from last hour                       |
+| IMPLAUSIBLE | Defies physical or factual reality     | Aliens landing, dead politicians winning elections |
+| STALE       | Article is more than 2 years old       | 2012 article recirculating as current news         |
 
 ---
 
 ## Tech Stack
 
 ### Backend
-| Tool | Purpose |
-|---|---|
-| Python + FastAPI | Web API framework |
-| DeBERTa-v3-base | Core fake news classifier (fine-tuned on WELFake) |
-| Qdrant | Vector database storing verified news embeddings |
-| sentence-transformers | Converts text to vectors for Qdrant |
-| Groq API (Llama 3.1) | LLM for RAG pipeline verdicts |
-| spaCy | Named entity recognition for plausibility layer |
-| feedparser | RSS feed parser for ingestion pipeline |
-| APScheduler | Runs ingestion job every 30 minutes |
-| readability-lxml | Extracts clean article text from URLs |
-| python-dotenv | Manages API keys via .env file |
+
+| Tool                  | Purpose                                           |
+| --------------------- | ------------------------------------------------- |
+| Python + FastAPI      | Web API framework                                 |
+| DeBERTa-v3-base       | Core fake news classifier (fine-tuned on WELFake) |
+| Qdrant                | Vector database storing verified news embeddings  |
+| sentence-transformers | Converts text to vectors for Qdrant               |
+| Groq API (Llama 3.1)  | LLM for RAG pipeline verdicts                     |
+| spaCy                 | Named entity recognition for plausibility layer   |
+| feedparser            | RSS feed parser for ingestion pipeline            |
+| APScheduler           | Runs ingestion job every 30 minutes               |
+| readability-lxml      | Extracts clean article text from URLs             |
+| python-dotenv         | Manages API keys via .env file                    |
 
 ### Frontend
-| Tool | Purpose |
-|---|---|
-| React 18 + Vite | UI framework |
-| Tailwind CSS | Styling |
-| axios | HTTP client for calling backend |
+
+| Tool            | Purpose                         |
+| --------------- | ------------------------------- |
+| React 18 + Vite | UI framework                    |
+| Tailwind CSS    | Styling                         |
+| axios           | HTTP client for calling backend |
 
 ### External Services
-| Service | Purpose | Cost |
-|---|---|---|
-| Qdrant Cloud | Vector database hosting | Free tier |
-| Groq API | LLM inference (6000 req/day) | Free |
-| Google Fact Check API | Pre-labeled verdicts from Snopes etc | Free |
-| NewsAPI | Real-time news search | Free (100/day) |
-| Vercel | Frontend hosting | Free |
-| Railway | Backend hosting | Free tier |
+
+| Service               | Purpose                              | Cost           |
+| --------------------- | ------------------------------------ | -------------- |
+| Qdrant Cloud          | Vector database hosting              | Free tier      |
+| Groq API              | LLM inference (6000 req/day)         | Free           |
+| Google Fact Check API | Pre-labeled verdicts from Snopes etc | Free           |
+| NewsAPI               | Real-time news search                | Free (100/day) |
+| Vercel                | Frontend hosting                     | Free           |
+| Railway               | Backend hosting                      | Free tier      |
 
 ---
 
@@ -138,6 +142,7 @@ fake-news-detector/
 ## Dataset Analysis (Step 2 — ✅ Complete)
 
 ### WELFake Dataset
+
 - **Total articles:** 72,134
 - **Real (label=1):** 37,106
 - **Fake (label=0):** 35,028
@@ -148,22 +153,25 @@ fake-news-detector/
 - **Source:** Kaggle — saurabhshahane/fake-news-classification
 
 ### LIAR Dataset
+
 - **Total statements:** 12,836
 - **Train / Test / Val split:** 10,269 / 1,283 / 1,284
 - **Labels:** 6 categories (mapped to binary for cross-dataset testing)
 - **Source:** William Yang Wang, ACL 2017
 
 #### LIAR Label Distribution
-| Label | Count |
-|---|---|
-| half-true | 2,123 |
-| False | 1,998 |
+
+| Label       | Count |
+| ----------- | ----- |
+| half-true   | 2,123 |
+| False       | 1,998 |
 | mostly-true | 1,966 |
-| True | 1,683 |
+| True        | 1,683 |
 | barely-true | 1,657 |
-| pants-fire | 842 |
+| pants-fire  | 842   |
 
 #### Binary Mapping for Cross-Dataset Testing
+
 - **REAL (1):** true, mostly-true, half-true
 - **FAKE (0):** false, barely-true, pants-fire
 
@@ -171,11 +179,11 @@ fake-news-detector/
 
 ## Accuracy Targets
 
-| Model | Dataset | Target F1 |
-|---|---|---|
-| Logistic Regression baseline | WELFake test split | 70-75% |
-| DeBERTa-v3 | WELFake test split | 90%+ |
-| DeBERTa-v3 cross-dataset | LIAR test split | 80%+ |
+| Model                        | Dataset            | Target F1 |
+| ---------------------------- | ------------------ | --------- |
+| Logistic Regression baseline | WELFake test split | 70-75%    |
+| DeBERTa-v3                   | WELFake test split | 90%+      |
+| DeBERTa-v3 cross-dataset     | LIAR test split    | 80%+      |
 
 ---
 
@@ -183,10 +191,10 @@ fake-news-detector/
 
 > 🚧 This section will be updated after Step 3 (Logistic Regression) and Step 6 (DeBERTa training)
 
-| Model | WELFake F1 | LIAR F1 |
-|---|---|---|
-| Logistic Regression | TBD | — |
-| DeBERTa-v3 | TBD | TBD |
+| Model               | WELFake F1 | LIAR F1 |
+| ------------------- | ---------- | ------- |
+| Logistic Regression | TBD        | —       |
+| DeBERTa-v3          | TBD        | TBD     |
 
 ---
 
@@ -195,12 +203,14 @@ fake-news-detector/
 > 🚧 Full setup instructions will be added after all components are built (Step 18)
 
 ### Prerequisites
+
 - Python 3.11+
 - Node.js 18+
 - Docker Desktop
 - Git
 
 ### Quick Start (Backend)
+
 ```bash
 # 1. Clone the repo
 git clone https://github.com/YOUR_USERNAME/fake-news-detector.git
@@ -245,9 +255,11 @@ QDRANT_API_KEY=         # cloud.qdrant.io
 > 🚧 Full API documentation will be added after Step 7
 
 ### POST /analyze
+
 Analyzes a news article and returns a verdict.
 
 **Request:**
+
 ```json
 {
   "text": "article body text",
@@ -257,6 +269,7 @@ Analyzes a news article and returns a verdict.
 ```
 
 **Response:**
+
 ```json
 {
   "verdict": "REAL | FAKE | MISLEADING | SATIRE | UNVERIFIED | IMPLAUSIBLE | STALE",
@@ -267,8 +280,8 @@ Analyzes a news article and returns a verdict.
   "stale_warning": false,
   "reasoning": "Article confirmed by 3 independent sources...",
   "flagged_sentences": ["suspicious sentence 1"],
-  "fact_checks": [{"title": "...", "url": "...", "org": "Snopes"}],
-  "related_articles": [{"title": "...", "url": "...", "source": "Reuters"}]
+  "fact_checks": [{ "title": "...", "url": "...", "org": "Snopes" }],
+  "related_articles": [{ "title": "...", "url": "...", "source": "Reuters" }]
 }
 ```
 
@@ -277,38 +290,42 @@ Analyzes a news article and returns a verdict.
 ## Progress Tracker
 
 ### Phase 1 — ML Foundation (Weeks 1-3)
-| Step | Description | Status |
-|---|---|---|
-| Step 1 | Project Setup & Environment | ✅ Complete |
-| Step 2 | Download Datasets & EDA | ✅ Complete |
-| Step 3 | Train Logistic Regression Baseline | ✅ Complete |
-| Step 4 | Build Domain Credibility Scorer | ✅ Complete |
-| Step 5 | Build RSS Parser & Ingestion Script | ⏳ Pending |
-| Step 6 | Fine-tune DeBERTa-v3 | ⏳ Pending |
-| Step 7 | Expose /predict Endpoint | ⏳ Pending |
+
+| Step   | Description                         | Status      |
+| ------ | ----------------------------------- | ----------- |
+| Step 1 | Project Setup & Environment         | ✅ Complete |
+| Step 2 | Download Datasets & EDA             | ✅ Complete |
+| Step 3 | Train Logistic Regression Baseline  | ✅ Complete |
+| Step 4 | Build Domain Credibility Scorer     | ✅ Complete |
+| Step 5 | Build RSS Parser & Ingestion Script | ✅ Complete |
+| Step 6 | Fine-tune DeBERTa-v3                | ⏳ Pending  |
+| Step 7 | Expose /predict Endpoint            | ⏳ Pending  |
 
 ### Phase 2 — Plausibility Layer + RAG (Weeks 4-5)
-| Step | Description | Status |
-|---|---|---|
-| Step 8 | Build Plausibility Layer | ⏳ Pending |
-| Step 9 | Build RAG Pipeline | ⏳ Pending |
-| Step 10 | Build URL Article Extractor | ⏳ Pending |
+
+| Step    | Description                     | Status     |
+| ------- | ------------------------------- | ---------- |
+| Step 8  | Build Plausibility Layer        | ⏳ Pending |
+| Step 9  | Build RAG Pipeline              | ⏳ Pending |
+| Step 10 | Build URL Article Extractor     | ⏳ Pending |
 | Step 11 | Wire Full Pipeline with Routing | ⏳ Pending |
-| Step 12 | End-to-End Testing 20 Articles | ⏳ Pending |
+| Step 12 | End-to-End Testing 20 Articles  | ⏳ Pending |
 
 ### Phase 3 — Frontend + Deploy (Week 6)
-| Step | Description | Status |
-|---|---|---|
-| Step 13 | Add Scheduled Ingestion | ⏳ Pending |
-| Step 14 | Build React Frontend | ⏳ Pending |
+
+| Step    | Description               | Status     |
+| ------- | ------------------------- | ---------- |
+| Step 13 | Add Scheduled Ingestion   | ⏳ Pending |
+| Step 14 | Build React Frontend      | ⏳ Pending |
 | Step 15 | Deploy Backend to Railway | ⏳ Pending |
 | Step 16 | Deploy Frontend to Vercel | ⏳ Pending |
 
 ### Phase 4 — Polish & Submit (Week 7)
-| Step | Description | Status |
-|---|---|---|
-| Step 17 | Prepare 5 Demo Cases | ⏳ Pending |
-| Step 18 | Write Complete README | ⏳ Pending |
+
+| Step    | Description                 | Status     |
+| ------- | --------------------------- | ---------- |
+| Step 17 | Prepare 5 Demo Cases        | ⏳ Pending |
+| Step 18 | Write Complete README       | ⏳ Pending |
 | Step 19 | Code Cleanup & Final Checks | ⏳ Pending |
 
 ---
@@ -338,4 +355,4 @@ For educational and research purposes only.
 
 ---
 
-*Last updated: Step 4 complete — Domain Credibility Scorer built and tested*
+_Last updated: Step 5 complete — RSS Parser & Ingestion Pipeline built and tested (109 vectors stored in Qdrant)_
