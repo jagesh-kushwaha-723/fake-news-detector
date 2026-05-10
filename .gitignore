@@ -1,0 +1,14 @@
+# Large dataset files
+notebooks/WELFake_Dataset.csv
+notebooks/liar/
+notebooks/__MACOSX/
+*.zip
+
+# Python
+.env
+__pycache__/
+*.pyc
+venv/
+node_modules/
+*.pkl
+deberta_fakenews/
